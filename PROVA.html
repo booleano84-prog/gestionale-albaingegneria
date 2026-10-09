@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Albaingegneria - Gestionale Archivio Prefallimentare</title>
+    <!-- Tailwind CSS per un design pulito e professionale -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-xl font-bold tracking-wide">Albaingegneria</span>
+                <span class="text-xs bg-blue-800 px-2 py-1 rounded text-blue-200">Portale Archivio Web</span>
+            </div>
+            <div class="text-sm text-blue-200">
+                Area Riservata / Consultazione Inventario
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-10 w-full flex-grow">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-slate-900">Ricerca Pratica Prefallimentare</h1>
+            <p class="text-slate-600 text-sm mt-1">Inserisci numero e anno per individuare subito faldone, scatola e bancale.</p>
+        </div>
+
+        <!-- Box di Ricerca -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+            <form id="searchForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Numero Pratica</label>
+                    <input type="number" id="numPratica" required placeholder="Es. 3" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Anno</label>
+                    <input type="number" id="annoPratica" required value="2013" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150">
+                        Cerca nell'Inventario
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sezione Risultati (inizialmente nascosta) -->
+        <div id="resultContainer" class="hidden space-y-6">
+            
+            <!-- Alert anomalie o risultati multipli -->
+            <div id="alertBox" class="hidden p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+                <span class="font-bold">Attenzione:</span> <span id="alertText"></span>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-100 px-6 py-3 border-b border-slate-200 flex justify-between items-center">
+                    <h2 class="font-semibold text-slate-700 text-sm uppercase tracking-wider">Risultato della Ricerca</h2>
+                    <span id="badgeEsito" class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-0.5 rounded">Pratica Disponibile</span>
+                </div>
+                
+                <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div>
+                        <span class="block text-xs text-slate-400 uppercase">Titolo Faldone</span>
+                        <span id="resFaldone" class="text-lg font-bold text-slate-900">-</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs text-slate-400 uppercase">Intervallo</span>
+                        <span id="resIntervallo" class="text-sm font-semibold text-slate-700">-</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs text-slate-400 uppercase">Scatola</span>
+                        <span id="resScatola" class="text-lg font-bold text-slate-900">-</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs text-slate-400 uppercase">Bancale</span>
+                        <span id="resBancale" class="text-lg font-bold text-slate-900">-</span>
+                    </div>
+                </div>
+                <div id="resNoteContainer" class="px-6 pb-6 hidden">
+                    <span class="block text-xs text-slate-400 uppercase">Note Archivio</span>
+                    <span id="resNote" class="text-sm text-red-600 font-medium">-</span>
+                </div>
+            </div>
+
+            <!-- Pulsante / Form per Richiesta Online -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 class="font-semibold text-slate-800 mb-3 text-base">Richiedi la pratica o il faldone</h3>
+                <p class="text-sm text-slate-600 mb-4">Compila la causale per inviare una richiesta immediata di prelievo o consultazione ad Albaingegneria.</p>
+                
+                <form id="requestForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tipo di Richiesta</label>
+                        <select id="tipoRichiesta" class="w-full md:w-1/3 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <option value="consultazione">Consultazione in sede / Digitale</option>
+                            <option value="prelievo_fisico">Prelievo fisico (Consegna faldone)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Causale / Note per la richiesta</label>
+                        <textarea id="causaleRichiesta" rows="2" required placeholder="Es. Necessaria per verifica contabile procedura..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"></textarea>
+                    </div>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg transition duration-150 text-sm">
+                        Invia Richiesta ad Albaingegneria
+                    </button>
+                </form>
+                <div id="requestSuccess" class="hidden mt-4 p-3 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium">
+                    Richiesta inviata con successo! Un operatore prenderà in carico la pratica.
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-4 text-center text-xs text-slate-500">
+        Albaingegneria - Gestionale Archivistico &copy; 2026. Tutti i diritti riservati.
+    </footer>
+
+    <!-- Logica JavaScript di Simulazione/Collegamento -->
+    <script>
+        // Simulazione dataset estratto dal file Excel per il prototipo immediato
+        const inventarioMock = [
+            { da: 1, a: 7, anno: 2013, faldone: "1-7", scatola: "1", bancale: "1", note: "" },
+            { da: 8, a: 19, anno: 2013, faldone: "8-19", scatola: "1", bancale: "1", note: "" },
+            { da: 14, a: 14, anno: 2013, faldone: "14-14", scatola: "2", bancale: "1", note: "Pratica isolata" },
+            { da: 1, a: 9, anno: 2014, faldone: "1-9", scatola: "20", bancale: "1", note: "" },
+            { da: 111, a: 122, anno: 2013, faldone: "111-122", scatola: "7", bancale: "1", note: "manca 110" }
+        ];
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const num = parseInt(document.getElementById('numPratica').value);
+            const anno = parseInt(document.getElementById('annoPratica').value);
+
+            // Filtro logica intervalli
+            const trovati = inventarioMock.filter(item => item.anno === anno && num >= item.da && num <= item.a);
+
+            const resultContainer = document.getElementById('resultContainer');
+            const alertBox = document.getElementById('alertBox');
+            const alertText = document.getElementById('alertText');
+            
+            resultContainer.classList.remove('hidden');
+            document.getElementById('requestSuccess').classList.add('hidden');
+
+            if (trovati.length === 0) {
+                alertBox.classList.remove('hidden');
+                alertText.textContent = "Nessun faldone trovato per questa pratica nell'anno indicato. Verifica l'inventario originale.";
+                document.getElementById('resFaldone').textContent = "Non trovato";
+                document.getElementById('resIntervallo').textContent = "-";
+                document.getElementById('resScatola').textContent = "-";
+                document.getElementById('resBancale').textContent = "-";
+                document.getElementById('resNoteContainer').classList.add('hidden');
+            } else {
+                if (trovati.length > 1) {
+                    alertBox.classList.remove('hidden');
+                    alertText.textContent = "Attenzione: la pratica rientra in più intervalli (possibile sovrapposizione o pratica isolata). Controlla i dettagli sotto.";
+                } else {
+                    alertBox.classList.add('hidden');
+                }
+
+                // Prendiamo il primo risultato trovato per comodità visiva del prototipo
+                const res = trovati[0];
+                document.getElementById('resFaldone').textContent = res.faldone;
+                document.getElementById('resIntervallo').textContent = `Da ${res.da} a ${res.a}`;
+                document.getElementById('resScatola').textContent = `Scatola ${res.scatola}`;
+                document.getElementById('resBancale').textContent = `Bancale ${res.bancale}`;
+
+                if (res.note) {
+                    document.getElementById('resNoteContainer').classList.remove('hidden');
+                    document.getElementById('resNote').textContent = res.note;
+                } else {
+                    document.getElementById('resNoteContainer').classList.add('hidden');
+                }
+            }
+        });
+
+        document.getElementById('requestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('requestSuccess').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
